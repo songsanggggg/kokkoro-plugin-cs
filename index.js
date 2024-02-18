@@ -3,6 +3,7 @@ import sqlite3 from 'sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
+import puppeteer from 'puppeteer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -48,14 +49,35 @@ export default function Example() {
     if (res.code != 0) {
         return '接口错误';
     }
-    let msg = "完美平台\n" + "累计封禁数:" + res.data.all + "\n日新增封禁数:" + res.data.today + "\n日期:" + res.data.date_time;
-    return msg;
-/*
+    let data = {
+      totalBans: res.data.all,
+      dailyBans: res.data.today,
+      currentDate: res.data.date_time
+    };
+    const generateImage = async (data) => {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+    
+      const htmlContent = fs.readFileSync(__dirname + '/resource/html/ban.html', 'utf8');
+    
+      await page.setContent(htmlContent);
+    
+      await page.evaluate((data) => {
+        document.getElementById('total-bans').textContent = data.totalBans;
+        document.getElementById('daily-bans').textContent = data.dailyBans;
+        document.getElementById('current-date').textContent = data.currentDate;
+      }, data);
+    
+      await page.screenshot({ path: __dirname + '/tmp/ban.png', fullPage: true });
+      await browser.close();
+    };
+
+    await generateImage(data);
+
    return ctx.api.sendChannelMessage(ctx.channel_id, {
     msg_id: ctx.id,
-    file_image: await getBlobFromLocalImage(__dirname + '/img/1.jpg')
+    file_image: await getBlobFromLocalImage(__dirname + '/tmp/ban.png')
    })
-   */
   });
 
   useCommand('/绑定 <message>', async ctx => {
