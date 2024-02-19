@@ -5,10 +5,13 @@ import { dirname } from 'path';
 import fs from 'fs';
 import puppeteer from 'puppeteer';
 import dayjs from 'dayjs';
+import schedule from 'node-schedule';
 
 const token = '';
 const device = '';
 const cookie = '';
+let previousNewsId;
+const channel_id = '';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,6 +36,72 @@ export default function Example() {
   useEvent(
     ctx => {
       ctx.logger.mark('link start');
+    },
+    ['session.ready'],
+  );
+
+  //完美资讯推送
+  useEvent(
+    async ctx => {
+      const scheduleNews = async () => {
+        try {
+          const response = await fetch("https://appengine.wmpvp.com/steamcn/community/homepage/getHomeInformation?gameTypeStr=2&pageNum=1&pageSize=20");
+          const data = await response.json();
+          if (data.code != '1') {
+            return;
+          }
+          const dataArr = data.result;
+          const news = [];
+          dataArr.forEach(data => {
+            if (data.news) news.push(data.news)
+          });
+          if (previousNewsId == news[0].newsId) {
+            return;
+          }
+          else {
+            previousNewsId = news[0].newsId;
+            let newResponse = await fetch(`https://appactivity.wmpvp.com/steamcn/app/news/getAppNewsById?gameType=2&newsId=${previousNewsId}&userId=`);
+            newResponse = await newResponse.json();
+            let html = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body>
+          <h1>${newResponse.result.news.title}</h1>
+          <p>作者: ${newResponse.result.news.author}</p>
+          <p>总结: ${newResponse.result.news.summary}</p>
+          <img src="${newResponse.result.news.thumbnail}" alt="封面">
+        </body>
+        </html> 
+        `;
+  
+            const generateNewsImage = async (html) => {
+              const browser = await puppeteer.launch();
+              const page = await browser.newPage();
+              await page.setContent(html);
+              await page.waitForSelector('img');
+              await page.screenshot({ path: __dirname + '/tmp/News.png', fullPage: true });
+  
+              await browser.close();
+            };
+  
+            await generateNewsImage(html);
+  
+            try {
+              await ctx.api.sendChannelMessage(channel_id, {
+                file_image: await getBlobFromLocalImage(__dirname + '/tmp/News.png')
+              });
+            } catch (error) {
+            }
+          }
+        } catch (error) {
+        }
+      };
+  
+      schedule.scheduleJob('30 * * * * *', scheduleNews);
     },
     ['session.ready'],
   );
@@ -174,7 +243,7 @@ export default function Example() {
     })
   });
 
-    useCommand('/明日赛程', async ctx => {
+  useCommand('/明日赛程', async ctx => {
     let timeGeter = new Date();
     let matchTime = timeGeter.getFullYear() + "-" + (timeGeter.getMonth() + 1) + "-" + (timeGeter.getDate() + 1);
     let apiUrl = `https://gwapi.pwesports.cn/eventcenter/app/csgo/event/getMatchList?matchTime=${matchTime}+00:00:00`;
@@ -282,7 +351,7 @@ export default function Example() {
       "mode": "cors"
     });
     const data = await response.json();
-    if(data.code != 'OK'){
+    if (data.code != 'OK') {
       return data.msg;
     }
     const items = data.data.suggestions;
@@ -340,7 +409,7 @@ export default function Example() {
       "mode": "cors"
     })
     const data = await response.json();
-    if(data.code != 'OK'){
+    if (data.code != 'OK') {
       return data.msg;
     }
     let goods = data.data.items;
