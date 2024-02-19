@@ -174,7 +174,7 @@ export default function Example() {
     })
   });
 
-  useCommand('/明日赛程', async ctx => {
+    useCommand('/明日赛程', async ctx => {
     let timeGeter = new Date();
     let matchTime = timeGeter.getFullYear() + "-" + (timeGeter.getMonth() + 1) + "-" + (timeGeter.getDate() + 1);
     let apiUrl = `https://gwapi.pwesports.cn/eventcenter/app/csgo/event/getMatchList?matchTime=${matchTime}+00:00:00`;
@@ -215,20 +215,20 @@ export default function Example() {
       `;
     });
 
-    const generateTodayScheduleImage = async (html) => {
+    const generateNextdayScheduleImage = async (html) => {
       const browser = await puppeteer.launch();
       const page = await browser.newPage();
       await page.setContent(html);
       await page.waitForSelector('img');
-      await page.screenshot({ path: __dirname + '/tmp/todaySchedule.png', fullPage: true });
+      await page.screenshot({ path: __dirname + '/tmp/nextdaySchedule.png', fullPage: true });
 
       await browser.close();
     }
-    await generateTodayScheduleImage(html);
+    await generateNextdayScheduleImage(html);
 
     return ctx.api.sendChannelMessage(ctx.channel_id, {
       msg_id: ctx.id,
-      file_image: await getBlobFromLocalImage(__dirname + '/tmp/todaySchedule.png')
+      file_image: await getBlobFromLocalImage(__dirname + '/tmp/nextdaySchedule.png')
     })
   });
 
