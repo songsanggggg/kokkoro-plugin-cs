@@ -63,19 +63,33 @@ export default function Example() {
             let newResponse = await fetch(`https://appactivity.wmpvp.com/steamcn/app/news/getAppNewsById?gameType=2&newsId=${previousNewsId}&userId=`);
             newResponse = await newResponse.json();
             let html = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body>
-          <h1>${newResponse.result.news.title}</h1>
-          <p>作者: ${newResponse.result.news.author}</p>
-          <p>总结: ${newResponse.result.news.summary}</p>
-          <img src="${newResponse.result.news.thumbnail}" alt="封面">
-        </body>
-        </html> 
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body {
+                  font-size: 16px;
+                }
+                h1 {
+                  font-size: 1.5em;
+                }
+                img {
+                  max-width: 100%;
+                  height: auto;
+                  display: block;
+                  margin: 0 auto;
+                }
+              </style>
+            </head>
+            <body>
+              <h1>${newResponse.result.news.title}</h1>
+              <p>作者: ${newResponse.result.news.author}</p>
+              <p>总结: ${newResponse.result.news.summary}</p>
+              <img src="${newResponse.result.news.thumbnail}" alt="封面">
+            </body>
+            </html>
         `;
   
             const generateNewsImage = async (html) => {
