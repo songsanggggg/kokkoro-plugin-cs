@@ -165,6 +165,7 @@ export default function Example() {
     })
   });
 
+/*
   useCommand('/绑定 <message>', async ctx => {
     let steamId = ctx.query.message.replace(' ', '');
     let userId = ctx.author.id;
@@ -197,7 +198,7 @@ export default function Example() {
       console.error(error);
     }
   });
-
+*/
 
   useCommand('/今日赛程', async ctx => {
     let timeGeter = new Date();
@@ -315,6 +316,7 @@ export default function Example() {
     })
   });
 
+/*
   useCommand('/换绑 <message>', async ctx => {
     let steamId = ctx.query.message.replace(' ', '');
     let userId = ctx.author.id;
@@ -346,6 +348,7 @@ export default function Example() {
       console.error(error);
     }
   });
+*/
 
   useCommand('/buff饰品搜索 <message>', async ctx => {
     let keyword = ctx.query.message.replace(' ', '');
