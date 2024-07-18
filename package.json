@@ -17,5 +17,11 @@
     "@kokkoro/core": "^3.0.12",
     "@kokkoro/database": "^1.0.2",
     "@kokkoro/utils": "^0.8.3"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.11",
+    "node-schedule": "^2.1.1",
+    "puppeteer": "^22.13.1",
+    "sqlite3": "^5.1.7"
   }
 }
